@@ -1,8 +1,9 @@
 import requests
 from itertools import count
 
-def get_hhru_response(text, area_id="1", period=30,
-                      professional_role_id="96"):
+
+def get_hhru_vacancies(text, area_id="1", period=30,
+                       professional_role_id="96"):
     """Docstrings need
 
     """
@@ -12,13 +13,20 @@ def get_hhru_response(text, area_id="1", period=30,
         "professional_role": professional_role_id,
         "area": area_id,
         "period": period,
+        "search_field": "name",
         "text": text
     }
 
-    hhru_response = requests.get(hhru_url, params=params)
-    hhru_response.raise_for_status()
+    for page in count(0):
+        params["page"] = page
+        hhru_response = requests.get(hhru_url, params)
+        hhru_response.raise_for_status()
+        hhru_data = hhru_response.json()
 
-    return hhru_response.json()
+        if page >= hhru_data["pages"]:
+            break
+
+        yield from hhru_data["items"]
 
 
 def predict_rub_salary(vacancy):
@@ -38,18 +46,6 @@ def predict_rub_salary(vacancy):
     return 0.5 * (from_salary + to_salary)
 
 
-def fetch_records():
-    for page in count():
-        page_response = requests.get(url, params={'page': page})
-        page_response.raise_for_status()
-        page_data = page_response.json()
-
-        if page >= page_data['pages_number']:
-            break
-
-        yield from page_data['page_records']
-
-
 def main():
 
     programming_languages = [
@@ -66,21 +62,23 @@ def main():
     ]
     salary_statistics = {}
 
-    for language in programming_languages:
+    for language in programming_languages[:2]:
 
         salaries = []
 
-        hhru_response = get_hhru_response(language)
-        vacancies = hhru_response["items"]
+        # hhru_response = get_hhru_response(language)
+        # vacancies = hhru_response["items"]
+        # vacancies = []
 
-        for vacancy in vacancies:
+        for index, vacancy in enumerate(get_hhru_vacancies(language),
+                                        start=1):
             salary = predict_rub_salary(vacancy)
             if salary:
                 salaries.append(salary)
-            print(salary)
+            print(language, index)
 
         salary_statistics[language] = {
-            "vacancies_found": hhru_response["found"],
+            "vacancies_found": index,
             "vacancies_processed": len(salaries),
             "average_salary": int(sum(salaries)/len(salaries))
         }
