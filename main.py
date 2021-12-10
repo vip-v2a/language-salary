@@ -1,7 +1,7 @@
 import os
 import requests
 from itertools import count
-from dotenv import load_dotenv()
+from dotenv import load_dotenv
 
 
 def get_hhru_vacancies(text, area_id="1", period=30,
@@ -23,12 +23,12 @@ def get_hhru_vacancies(text, area_id="1", period=30,
         params["page"] = page
         hhru_response = requests.get(hhru_url, params)
         hhru_response.raise_for_status()
-        hhru_data = hhru_response.json()
+        hhru_vacancies = hhru_response.json()
 
-        if page >= hhru_data["pages"]:
+        if page >= hhru_vacancies["pages"]:
             break
 
-        yield from hhru_data["items"]
+        yield from hhru_vacancies["items"]
 
 
 def predict_rub_salary(vacancy):
@@ -88,12 +88,13 @@ def main():
         }
 
     # print(hhru_salary_statistics)
-    sj_access_token = get_sj_access_token(
-        sj_login,
-        sj_password,
-        sj_id,
-        sj_api_key
-    )
+    # sj_access_token = get_sj_access_token(
+    #     sj_login,
+    #     sj_password,
+    #     sj_id,
+    #     sj_api_key
+    # )
+    get_sj_vacancies(sj_api_key, "python")
 
 
 def get_sj_access_token(login, password, client_id, client_secret):
@@ -108,8 +109,33 @@ def get_sj_access_token(login, password, client_id, client_secret):
 
     oauth2_response = requests.get(oauth2_url, params)
     oauth2_response.raise_for_status()
-    print(oauth2_response.json()["access_token"])
+
     return oauth2_response.json()["access_token"]
+
+
+def get_sj_vacancies(client_secret, keyword):
+
+    sj_vacancies_url = "https://api.superjob.ru/2.0/vacancies/"
+
+    headers = {
+        "X-Api-App-Id": client_secret
+    }
+
+    params = {
+        "town": 4,
+        "catalogues": 48,
+        "keyword": keyword
+    }
+
+    sj_response = requests.get(
+        sj_vacancies_url,
+        params=params,
+        headers=headers
+    )
+    sj_response.raise_for_status()
+    sj_vacancies = sj_response.json()["objects"]
+    for vacancy in sj_vacancies:
+        print(vacancy["profession"], vacancy["town"]["title"])
 
 
 if __name__ == "__main__":
