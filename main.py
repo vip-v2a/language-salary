@@ -1,5 +1,7 @@
+import os
 import requests
 from itertools import count
+from dotenv import load_dotenv()
 
 
 def get_hhru_vacancies(text, area_id="1", period=30,
@@ -48,27 +50,29 @@ def predict_rub_salary(vacancy):
 
 def main():
 
+    load_dotenv()
+    sj_login = os.getenv("SUPERJOB_LOGIN")
+    sj_password = os.getenv("SUPERJOB_PASSWORD")
+    sj_id = os.getenv("SUPERJOB_ID")
+    sj_api_key = os.getenv("SUPERJOB_API_KEY")
+
     programming_languages = [
-        "Python",
-        "Java",
-        "PHP",
-        "JavaScript",
-        "C++",
-        "Swift",
-        "Ruby",
-        "Go",
-        "React",
-        "C#"
+        # "Python",
+        # "Java",
+        # "PHP",
+        # "JavaScript",
+        # "C++",
+        # "Swift",
+        # "Ruby",
+        # "Go",
+        # "React",
+        # "C#"
     ]
-    salary_statistics = {}
+    hhru_salary_statistics = {}
 
     for language in programming_languages[:2]:
 
         salaries = []
-
-        # hhru_response = get_hhru_response(language)
-        # vacancies = hhru_response["items"]
-        # vacancies = []
 
         for index, vacancy in enumerate(get_hhru_vacancies(language),
                                         start=1):
@@ -77,14 +81,36 @@ def main():
                 salaries.append(salary)
             print(language, index)
 
-        salary_statistics[language] = {
+        hhru_salary_statistics[language] = {
             "vacancies_found": index,
             "vacancies_processed": len(salaries),
             "average_salary": int(sum(salaries)/len(salaries))
         }
 
-    print(salary_statistics)
+    # print(hhru_salary_statistics)
+    sj_access_token = get_sj_access_token(
+        sj_login,
+        sj_password,
+        sj_id,
+        sj_api_key
+    )
 
 
-if __name__ == '__main__':
+def get_sj_access_token(login, password, client_id, client_secret):
+
+    oauth2_url = "https://api.superjob.ru/2.0/oauth2/password/"
+    params = {
+        "login": login,
+        "password": password,
+        "client_id": client_id,
+        "client_secret": client_secret
+    }
+
+    oauth2_response = requests.get(oauth2_url, params)
+    oauth2_response.raise_for_status()
+    print(oauth2_response.json()["access_token"])
+    return oauth2_response.json()["access_token"]
+
+
+if __name__ == "__main__":
     main()
