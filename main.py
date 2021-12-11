@@ -31,21 +31,26 @@ def get_hhru_vacancies(text, area_id="1", period=30,
         yield from hhru_vacancies["items"]
 
 
-def predict_rub_salary(vacancy):
+def predict_rub_salary_hh(vacancy):
 
     if not (vacancy["salary"]
             and vacancy["salary"]["currency"] == "RUR"):
         return
 
-    from_salary = vacancy["salary"]["from"]
-    to_salary = vacancy["salary"]["to"]
+    return predict_salary(
+        salary_from=vacancy["salary"]["from"],
+        salary_to=vacancy["salary"]["to"]
+    )
 
-    if not from_salary:
-        return to_salary * 0.8
-    if not to_salary:
-        return from_salary * 1.2
 
-    return 0.5 * (from_salary + to_salary)
+def predict_salary(salary_from, salary_to):
+
+    if not salary_from:
+        return salary_to * 0.8
+    if not salary_to:
+        return salary_from * 1.2
+
+    return 0.5 * (salary_from + salary_to)
 
 
 def main():
@@ -69,6 +74,7 @@ def main():
         # "C#"
     ]
     hhru_salary_statistics = {}
+    sj_salary_statistics = {}
 
     for language in programming_languages[:2]:
 
@@ -76,10 +82,9 @@ def main():
 
         for index, vacancy in enumerate(get_hhru_vacancies(language),
                                         start=1):
-            salary = predict_rub_salary(vacancy)
+            salary = predict_rub_salary_hh(vacancy)
             if salary:
                 salaries.append(salary)
-            print(language, index)
 
         hhru_salary_statistics[language] = {
             "vacancies_found": index,
@@ -97,7 +102,7 @@ def main():
     get_sj_vacancies(sj_api_key, "python")
 
 
-def get_sj_access_token(login, password, client_id, client_secret):
+def is_ok_sj_authorization(login, password, client_id, client_secret):
 
     oauth2_url = "https://api.superjob.ru/2.0/oauth2/password/"
     params = {
@@ -110,7 +115,7 @@ def get_sj_access_token(login, password, client_id, client_secret):
     oauth2_response = requests.get(oauth2_url, params)
     oauth2_response.raise_for_status()
 
-    return oauth2_response.json()["access_token"]
+    return oauth2_response.ok
 
 
 def get_sj_vacancies(client_secret, keyword):
@@ -134,8 +139,21 @@ def get_sj_vacancies(client_secret, keyword):
     )
     sj_response.raise_for_status()
     sj_vacancies = sj_response.json()["objects"]
+
     for vacancy in sj_vacancies:
-        print(vacancy["profession"], vacancy["town"]["title"])
+        salary = predict_rub_salary_sj(vacancy)
+        print(vacancy["profession"], vacancy["town"]["title"], salary)
+
+
+def predict_rub_salary_sj(vacancy):
+    if not vacancy["currency"] == "rub":
+        return
+
+    salary_from = vacancy["payment_from"]
+    salary_to = vacancy["payment_to"]
+
+    if salary_from or salary_to:
+        return predict_salary(salary_from, salary_to)
 
 
 if __name__ == "__main__":
