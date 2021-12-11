@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 from itertools import count
@@ -62,44 +63,50 @@ def main():
     sj_api_key = os.getenv("SUPERJOB_API_KEY")
 
     programming_languages = [
-        # "Python",
-        # "Java",
-        # "PHP",
-        # "JavaScript",
-        # "C++",
-        # "Swift",
-        # "Ruby",
-        # "Go",
-        # "React",
-        # "C#"
+        "Python",
+        "Java",
+        "PHP",
+        "JavaScript",
+        "C++",
+        "Swift",
+        "Ruby",
+        "Go",
+        "React",
+        "C#"
     ]
     hhru_salary_statistics = {}
     sj_salary_statistics = {}
+    sj_salary_statistics = get_sj_vacancy_statistics(
+        programming_languages,
+        sj_id,
+        sj_api_key,
+        sj_login,
+        sj_password
+    )
+    print(sj_salary_statistics)
 
-    for language in programming_languages[:2]:
+
+def get_hhru_vacancy_statistics(programming_languages):
+
+    hhru_salary_statistics = {}
+
+    for language in programming_languages:
 
         salaries = []
+        vacancies = get_hhru_vacancies(language)
 
-        for index, vacancy in enumerate(get_hhru_vacancies(language),
-                                        start=1):
+        for vacancy in vacancies:
             salary = predict_rub_salary_hh(vacancy)
             if salary:
                 salaries.append(salary)
 
         hhru_salary_statistics[language] = {
-            "vacancies_found": index,
+            "vacancies_found": len(vacancies),
             "vacancies_processed": len(salaries),
-            "average_salary": int(sum(salaries)/len(salaries))
+            "average_salary": get_average_salary(salaries)
         }
 
-    # print(hhru_salary_statistics)
-    # sj_access_token = get_sj_access_token(
-    #     sj_login,
-    #     sj_password,
-    #     sj_id,
-    #     sj_api_key
-    # )
-    get_sj_vacancies(sj_api_key, "python")
+    return hhru_salary_statistics
 
 
 def is_ok_sj_authorization(login, password, client_id, client_secret):
@@ -129,20 +136,65 @@ def get_sj_vacancies(client_secret, keyword):
     params = {
         "town": 4,
         "catalogues": 48,
-        "keyword": keyword
+        "keyword": keyword,
+        "count": 100
     }
 
-    sj_response = requests.get(
-        sj_vacancies_url,
-        params=params,
-        headers=headers
-    )
-    sj_response.raise_for_status()
-    sj_vacancies = sj_response.json()["objects"]
+    for page in count(0):
+        params["page"] = page
 
-    for vacancy in sj_vacancies:
-        salary = predict_rub_salary_sj(vacancy)
-        print(vacancy["profession"], vacancy["town"]["title"], salary)
+        sj_response = requests.get(
+            sj_vacancies_url,
+            params=params,
+            headers=headers
+        )
+        sj_response.raise_for_status()
+        sj_vacancies = sj_response.json()
+
+        yield from sj_vacancies["objects"]
+
+        if not sj_vacancies["more"]:
+            break
+
+
+
+def get_sj_vacancy_statistics(programming_languages, client_id,
+                              client_secret, login, password):
+
+    sj_salary_statistics = {}
+
+    if not is_ok_sj_authorization(login, password, client_id, client_secret):
+        logging.warning(
+            "Failed authorization on the SuperJob website."
+        )
+        return
+
+    for language in programming_languages:
+
+        index = 0
+        salaries = []
+        vacancies = get_sj_vacancies(client_secret, language)
+        print(language)
+
+        for index, vacancy in enumerate(vacancies, start=1):
+            salary = predict_rub_salary_sj(vacancy)
+            if salary:
+                salaries.append(salary)
+
+        print(salaries)
+        sj_salary_statistics[language] = {
+            "vacancies_found": index,
+            "vacancies_processed": len(salaries),
+            "average_salary": get_average_salary(salaries)
+        }
+
+    return sj_salary_statistics
+
+
+def get_average_salary(salaries):
+    if not salaries:
+        return 0
+    return int(sum(salaries)/len(salaries))
 
 
 def predict_rub_salary_sj(vacancy):
