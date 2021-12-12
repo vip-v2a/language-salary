@@ -3,6 +3,7 @@ import os
 import requests
 from itertools import count
 from dotenv import load_dotenv
+from terminaltables import AsciiTable
 
 
 def get_hhru_vacancies(text, area_id="1", period=30,
@@ -56,6 +57,11 @@ def predict_salary(salary_from, salary_to):
 
 def main():
 
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(process)d %(levelname)s %(message)s"
+    )
+
     load_dotenv()
     sj_login = os.getenv("SUPERJOB_LOGIN")
     sj_password = os.getenv("SUPERJOB_PASSWORD")
@@ -74,8 +80,14 @@ def main():
         "React",
         "C#"
     ]
+
     hhru_salary_statistics = {}
     sj_salary_statistics = {}
+
+    hhru_salary_statistics = get_hhru_vacancy_statistics(
+        programming_languages
+    )
+
     sj_salary_statistics = get_sj_vacancy_statistics(
         programming_languages,
         sj_id,
@@ -83,7 +95,27 @@ def main():
         sj_login,
         sj_password
     )
-    print(sj_salary_statistics)
+
+    display_statistics_table(hhru_salary_statistics, "HeadHunter Moscow")
+    display_statistics_table(sj_salary_statistics, "SuperJob Moscow")
+
+
+def display_statistics_table(statistics, title):
+    headings = [
+        "Язык программирования",
+        "Вакансий найдено",
+        "Вакансий обработано",
+        "Средняя зарплата"
+    ]
+
+    rows = []
+    rows.append(headings)
+
+    for language, parameters in statistics.items():
+        rows.append([language, *parameters.values()])
+
+    table_instance = AsciiTable(rows, title)
+    print(table_instance.table, end="\n")
 
 
 def get_hhru_vacancy_statistics(programming_languages):
@@ -92,16 +124,17 @@ def get_hhru_vacancy_statistics(programming_languages):
 
     for language in programming_languages:
 
+        index = 0
         salaries = []
         vacancies = get_hhru_vacancies(language)
 
-        for vacancy in vacancies:
+        for index, vacancy in enumerate(vacancies, start=1):
             salary = predict_rub_salary_hh(vacancy)
             if salary:
                 salaries.append(salary)
 
         hhru_salary_statistics[language] = {
-            "vacancies_found": len(vacancies),
+            "vacancies_found": index,
             "vacancies_processed": len(salaries),
             "average_salary": get_average_salary(salaries)
         }
@@ -157,7 +190,6 @@ def get_sj_vacancies(client_secret, keyword):
             break
 
 
-
 def get_sj_vacancy_statistics(programming_languages, client_id,
                               client_secret, login, password):
 
@@ -174,14 +206,12 @@ def get_sj_vacancy_statistics(programming_languages, client_id,
         index = 0
         salaries = []
         vacancies = get_sj_vacancies(client_secret, language)
-        print(language)
 
         for index, vacancy in enumerate(vacancies, start=1):
             salary = predict_rub_salary_sj(vacancy)
             if salary:
                 salaries.append(salary)
 
-        print(salaries)
         sj_salary_statistics[language] = {
             "vacancies_found": index,
             "vacancies_processed": len(salaries),
