@@ -8,9 +8,6 @@ from terminaltables import AsciiTable
 
 def get_hhru_vacancies(text, area_id="1", period=30,
                        professional_role_id="96"):
-    """Docstrings need
-
-    """
 
     hhru_url = "https://api.hh.ru/vacancies"
     params = {
@@ -115,7 +112,7 @@ def display_statistics_table(statistics, title):
         rows.append([language, *parameters.values()])
 
     table_instance = AsciiTable(rows, title)
-    print(table_instance.table, end="\n")
+    print(table_instance.table)
 
 
 def get_hhru_vacancy_statistics(programming_languages):

@@ -9,12 +9,12 @@ The code is written for educational purposes on online-course for web-developers
 
 
 ## Usage
-0. Create enviroment variables. See a topic "SuperJob API" for example.
-1. Run `main.py` to display salary statictics.
+0. Create environment variables. See a topic "SuperJob API" for example.
+1. Run `main.py` to display salary statistics.
 ```
 python main.py
 ```
-![]()
+![](https://github.com/vip-v2a/language-salary/blob/8793aee628bc2e6772a647bed1622018954501db/ext/example.gif)
 
 
 ## Getting Started
@@ -51,7 +51,7 @@ pip install -r requirements.txt
 
 [API description](https://api.superjob.ru/).
 
-To use all API methods, you need [to register your application](https://api.superjob.ru/register). After registration you get access parameters: "ID", "Secret key". You need to set these parameters in environment variables `SUPERJOB_ID`, `SUPERJOB_API_KEY`. To do this, type commands at the Command Prompt:
+To use all API methods, you need [to register your application](https://api.superjob.ru/register). After registration, you get access parameters: "ID", "Secret key". You need to set these parameters in environment variables `SUPERJOB_ID`, `SUPERJOB_API_KEY`. To do this, type commands at the Command Prompt:
 
 ```
 set SUPERJOB_ID=ID
