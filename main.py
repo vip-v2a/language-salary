@@ -57,7 +57,7 @@ def predict_salary(salary_from, salary_to):
 
 
 def display_statistics_table(statistics, title):
-    headings = [
+    headers = [
         "Язык программирования",
         "Вакансий найдено",
         "Вакансий обработано",
@@ -65,7 +65,7 @@ def display_statistics_table(statistics, title):
     ]
 
     rows = []
-    rows.append(headings)
+    rows.append(headers)
 
     for language, parameters in statistics.items():
         rows.append([language, *parameters.values()])
