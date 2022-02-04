@@ -52,45 +52,6 @@ def predict_salary(salary_from, salary_to):
     return 0.5 * (salary_from + salary_to)
 
 
-def main():
-
-    logging.basicConfig(
-        level=logging.WARNING,
-        format="%(process)d %(levelname)s %(message)s"
-    )
-
-    load_dotenv()
-    sj_api_key = os.getenv("SUPERJOB_API_KEY")
-
-    programming_languages = [
-        "Python",
-        "Java",
-        "PHP",
-        "JavaScript",
-        "C++",
-        "Swift",
-        "Ruby",
-        "Go",
-        "React",
-        "C#"
-    ]
-
-    hhru_salary_statistics = {}
-    sj_salary_statistics = {}
-
-    hhru_salary_statistics = get_hhru_vacancy_statistics(
-        programming_languages
-    )
-
-    sj_salary_statistics = get_sj_vacancy_statistics(
-        programming_languages,
-        sj_api_key,
-    )
-
-    display_statistics_table(hhru_salary_statistics, "HeadHunter Moscow")
-    display_statistics_table(sj_salary_statistics, "SuperJob Moscow")
-
-
 def display_statistics_table(statistics, title):
     headings = [
         "Язык программирования",
@@ -204,6 +165,45 @@ def predict_rub_salary_sj(vacancy):
 
     if salary_from or salary_to:
         return predict_salary(salary_from, salary_to)
+
+
+def main():
+
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(process)d %(levelname)s %(message)s"
+    )
+
+    load_dotenv()
+    sj_api_key = os.getenv("SUPERJOB_API_KEY")
+
+    programming_languages = [
+        "Python",
+        "Java",
+        "PHP",
+        "JavaScript",
+        "C++",
+        "Swift",
+        "Ruby",
+        "Go",
+        "React",
+        "C#"
+    ]
+
+    hhru_salary_statistics = {}
+    sj_salary_statistics = {}
+
+    hhru_salary_statistics = get_hhru_vacancy_statistics(
+        programming_languages
+    )
+
+    sj_salary_statistics = get_sj_vacancy_statistics(
+        programming_languages,
+        sj_api_key,
+    )
+
+    display_statistics_table(hhru_salary_statistics, "HeadHunter Moscow")
+    display_statistics_table(sj_salary_statistics, "SuperJob Moscow")
 
 
 if __name__ == "__main__":
