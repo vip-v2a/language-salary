@@ -60,9 +60,6 @@ def main():
     )
 
     load_dotenv()
-    sj_login = os.getenv("SUPERJOB_LOGIN")
-    sj_password = os.getenv("SUPERJOB_PASSWORD")
-    sj_id = os.getenv("SUPERJOB_ID")
     sj_api_key = os.getenv("SUPERJOB_API_KEY")
 
     programming_languages = [
@@ -87,10 +84,7 @@ def main():
 
     sj_salary_statistics = get_sj_vacancy_statistics(
         programming_languages,
-        sj_id,
         sj_api_key,
-        sj_login,
-        sj_password
     )
 
     display_statistics_table(hhru_salary_statistics, "HeadHunter Moscow")
@@ -139,22 +133,6 @@ def get_hhru_vacancy_statistics(programming_languages):
     return hhru_salary_statistics
 
 
-def is_ok_sj_authorization(login, password, client_id, client_secret):
-
-    oauth2_url = "https://api.superjob.ru/2.0/oauth2/password/"
-    params = {
-        "login": login,
-        "password": password,
-        "client_id": client_id,
-        "client_secret": client_secret
-    }
-
-    oauth2_response = requests.get(oauth2_url, params)
-    oauth2_response.raise_for_status()
-
-    return oauth2_response.ok
-
-
 def get_sj_vacancies(client_secret, keyword):
 
     sj_vacancies_url = "https://api.superjob.ru/2.0/vacancies/"
@@ -187,16 +165,9 @@ def get_sj_vacancies(client_secret, keyword):
             break
 
 
-def get_sj_vacancy_statistics(programming_languages, client_id,
-                              client_secret, login, password):
+def get_sj_vacancy_statistics(programming_languages, client_secret):
 
     sj_salary_statistics = {}
-
-    if not is_ok_sj_authorization(login, password, client_id, client_secret):
-        logging.warning(
-            "Failed authorization on the SuperJob website."
-        )
-        return
 
     for language in programming_languages:
 
