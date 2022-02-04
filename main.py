@@ -70,13 +70,13 @@ def display_statistics_table(statistics, title):
     for language, parameters in statistics.items():
         rows.append([language, *parameters.values()])
 
-    table_instance = AsciiTable(rows, title)
-    print(table_instance.table)
+    table = AsciiTable(rows, title)
+    print(table.table)
 
 
 def get_hhru_vacancy_statistics(programming_languages):
 
-    salary_statistics = {}
+    statistics = {}
 
     for language in programming_languages:
 
@@ -89,13 +89,13 @@ def get_hhru_vacancy_statistics(programming_languages):
             if salary:
                 salaries.append(salary)
 
-        salary_statistics[language] = {
+        statistics[language] = {
             "vacancies_found": index,
             "vacancies_processed": len(salaries),
             "average_salary": get_average_salary(salaries)
         }
 
-    return salary_statistics
+    return statistics
 
 
 def get_sj_vacancies(client_secret, keyword):
@@ -192,9 +192,6 @@ def main():
         "React",
         "C#"
     ]
-
-    hhru_salary_statistics = {}
-    sj_salary_statistics = {}
 
     hhru_salary_statistics = get_hhru_vacancy_statistics(
         programming_languages
