@@ -64,8 +64,7 @@ def display_statistics_table(statistics, title):
         "Средняя зарплата"
     ]
 
-    rows = []
-    rows.append(headers)
+    rows = [headers]
 
     for language, parameters in statistics.items():
         rows.append([language, *parameters.values()])
