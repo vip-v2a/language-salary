@@ -9,7 +9,7 @@ from terminaltables import AsciiTable
 def get_hhru_vacancies(text, area_id="1", period=30,
                        professional_role_id="96"):
 
-    hhru_url = "https://api.hh.ru/vacancies"
+    url = "https://api.hh.ru/vacancies"
     params = {
         "professional_role": professional_role_id,
         "area": area_id,
@@ -20,13 +20,13 @@ def get_hhru_vacancies(text, area_id="1", period=30,
 
     for page in count(0):
         params["page"] = page
-        hhru_response = requests.get(hhru_url, params)
-        hhru_response.raise_for_status()
-        hhru_vacancies = hhru_response.json()
+        response = requests.get(url, params)
+        response.raise_for_status()
+        vacancies = response.json()
 
-        yield from hhru_vacancies["items"]
+        yield from vacancies["items"]
 
-        if page > hhru_vacancies["pages"]:
+        if page > vacancies["pages"]:
             break
 
 
@@ -76,7 +76,7 @@ def display_statistics_table(statistics, title):
 
 def get_hhru_vacancy_statistics(programming_languages):
 
-    hhru_salary_statistics = {}
+    salary_statistics = {}
 
     for language in programming_languages:
 
@@ -89,18 +89,18 @@ def get_hhru_vacancy_statistics(programming_languages):
             if salary:
                 salaries.append(salary)
 
-        hhru_salary_statistics[language] = {
+        salary_statistics[language] = {
             "vacancies_found": index,
             "vacancies_processed": len(salaries),
             "average_salary": get_average_salary(salaries)
         }
 
-    return hhru_salary_statistics
+    return salary_statistics
 
 
 def get_sj_vacancies(client_secret, keyword):
 
-    sj_vacancies_url = "https://api.superjob.ru/2.0/vacancies/"
+    url = "https://api.superjob.ru/2.0/vacancies/"
 
     headers = {
         "X-Api-App-Id": client_secret
@@ -116,23 +116,23 @@ def get_sj_vacancies(client_secret, keyword):
     for page in count(0):
         params["page"] = page
 
-        sj_response = requests.get(
-            sj_vacancies_url,
+        response = requests.get(
+            url,
             params=params,
             headers=headers
         )
-        sj_response.raise_for_status()
-        sj_vacancies = sj_response.json()
+        response.raise_for_status()
+        vacancies = response.json()
 
-        yield from sj_vacancies["objects"]
+        yield from vacancies["objects"]
 
-        if not sj_vacancies["more"]:
+        if not vacancies["more"]:
             break
 
 
 def get_sj_vacancy_statistics(programming_languages, client_secret):
 
-    sj_salary_statistics = {}
+    statistics = {}
 
     for language in programming_languages:
 
@@ -145,13 +145,13 @@ def get_sj_vacancy_statistics(programming_languages, client_secret):
             if salary:
                 salaries.append(salary)
 
-        sj_salary_statistics[language] = {
+        statistics[language] = {
             "vacancies_found": index,
             "vacancies_processed": len(salaries),
             "average_salary": get_average_salary(salaries)
         }
 
-    return sj_salary_statistics
+    return statistics
 
 
 def get_average_salary(salaries):
