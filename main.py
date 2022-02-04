@@ -56,7 +56,7 @@ def predict_salary(salary_from, salary_to):
     return 0.5 * (salary_from + salary_to)
 
 
-def display_statistics_table(statistics, title):
+def get_statistics_table(statistics, title):
     headers = [
         "Язык программирования",
         "Вакансий найдено",
@@ -69,8 +69,8 @@ def display_statistics_table(statistics, title):
     for language, parameters in statistics.items():
         rows.append([language, *parameters.values()])
 
-    table = AsciiTable(rows, title)
-    print(table.table)
+    table = AsciiTable(rows, title).table
+    return table
 
 
 def get_hhru_vacancy_statistics(programming_languages):
@@ -201,8 +201,18 @@ def main():
         sj_api_key,
     )
 
-    display_statistics_table(hhru_salary_statistics, "HeadHunter Moscow")
-    display_statistics_table(sj_salary_statistics, "SuperJob Moscow")
+    hhru_table = get_statistics_table(
+        hhru_salary_statistics,
+        "HeadHunter Moscow"
+    )
+
+    sj_table = get_statistics_table(
+        sj_salary_statistics,
+        "SuperJob Moscow"
+    )
+
+    print(hhru_table)
+    print(sj_table)
 
 
 if __name__ == "__main__":
