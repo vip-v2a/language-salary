@@ -1,5 +1,5 @@
-import logging
 import os
+import logging
 import requests
 from itertools import count
 from dotenv import load_dotenv
@@ -32,17 +32,21 @@ def get_hhru_vacancies(text, area_id="1", period=30,
 
 def predict_rub_salary_hh(vacancy):
 
-    if not (vacancy["salary"]
-            and vacancy["salary"]["currency"] == "RUR"):
+    salary = vacancy["salary"]
+
+    if not (salary and salary["currency"] == "RUR"):
         return
 
     return predict_salary(
-        salary_from=vacancy["salary"]["from"],
-        salary_to=vacancy["salary"]["to"]
+        salary_from=salary["from"],
+        salary_to=salary["to"]
     )
 
 
 def predict_salary(salary_from, salary_to):
+
+    if not(salary_from or salary_to):
+        return
 
     if not salary_from:
         return salary_to * 0.8
@@ -163,8 +167,7 @@ def predict_rub_salary_sj(vacancy):
     salary_from = vacancy["payment_from"]
     salary_to = vacancy["payment_to"]
 
-    if salary_from or salary_to:
-        return predict_salary(salary_from, salary_to)
+    return predict_salary(salary_from, salary_to)
 
 
 def main():
