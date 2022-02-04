@@ -24,10 +24,10 @@ def get_hhru_vacancies(text, area_id="1", period=30,
         hhru_response.raise_for_status()
         hhru_vacancies = hhru_response.json()
 
-        if page >= hhru_vacancies["pages"]:
-            break
-
         yield from hhru_vacancies["items"]
+
+        if page > hhru_vacancies["pages"]:
+            break
 
 
 def predict_rub_salary_hh(vacancy):
