@@ -24,9 +24,9 @@ def get_hhru_vacancies(text, area_id="1", period=30,
         response.raise_for_status()
         vacancies = response.json()
 
-        yield from vacancies["items"]
+        yield vacancies["found"], vacancies["items"]
 
-        if page > vacancies["pages"]:
+        if page + 1 >= vacancies["pages"]:
             break
 
 
@@ -79,17 +79,15 @@ def get_hhru_vacancy_statistics(programming_languages):
 
     for language in programming_languages:
 
-        index = 0
         salaries = []
-        vacancies = get_hhru_vacancies(language)
 
-        for index, vacancy in enumerate(vacancies, start=1):
+        for vacancies_found, vacancy in get_hhru_vacancies(language):
             salary = predict_rub_salary_hh(vacancy)
             if salary:
                 salaries.append(salary)
 
         statistics[language] = {
-            "vacancies_found": index,
+            "vacancies_found": vacancies_found,
             "vacancies_processed": len(salaries),
             "average_salary": get_average_salary(salaries)
         }
