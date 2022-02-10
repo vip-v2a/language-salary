@@ -81,10 +81,11 @@ def get_hhru_vacancy_statistics(programming_languages):
 
         salaries = []
 
-        for vacancies_found, vacancy in get_hhru_vacancies(language):
-            salary = predict_rub_salary_hh(vacancy)
-            if salary:
-                salaries.append(salary)
+        for vacancies_found, vacancies in get_hhru_vacancies(language):
+            for vacancy in vacancies:
+                salary = predict_rub_salary_hh(vacancy)
+                if salary:
+                    salaries.append(salary)
 
         statistics[language] = {
             "vacancies_found": vacancies_found,
@@ -98,16 +99,19 @@ def get_hhru_vacancy_statistics(programming_languages):
 def get_sj_vacancies(client_secret, keyword):
 
     url = "https://api.superjob.ru/2.0/vacancies/"
+    Moscow_id = 4
+    programming_id = 48
+    results_per_page = 100
 
     headers = {
         "X-Api-App-Id": client_secret
     }
 
     params = {
-        "town": 4,
-        "catalogues": 48,
+        "town": Moscow_id,
+        "catalogues": programming_id,
         "keyword": keyword,
-        "count": 100
+        "count": results_per_page
     }
 
     for page in count(0):
@@ -121,7 +125,7 @@ def get_sj_vacancies(client_secret, keyword):
         response.raise_for_status()
         vacancies = response.json()
 
-        yield from vacancies["objects"]
+        yield vacancies["total"], vacancies["objects"]
 
         if not vacancies["more"]:
             break
@@ -133,17 +137,17 @@ def get_sj_vacancy_statistics(programming_languages, client_secret):
 
     for language in programming_languages:
 
-        index = 0
         salaries = []
-        vacancies = get_sj_vacancies(client_secret, language)
 
-        for index, vacancy in enumerate(vacancies, start=1):
-            salary = predict_rub_salary_sj(vacancy)
-            if salary:
-                salaries.append(salary)
+        for vacancies_found, vacancies in get_sj_vacancies(client_secret,
+                                                           language):
+            for vacancy in vacancies:
+                salary = predict_rub_salary_sj(vacancy)
+                if salary:
+                    salaries.append(salary)
 
         statistics[language] = {
-            "vacancies_found": index,
+            "vacancies_found": vacancies_found,
             "vacancies_processed": len(salaries),
             "average_salary": get_average_salary(salaries)
         }
