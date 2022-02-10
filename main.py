@@ -83,13 +83,7 @@ def get_hhru_vacancy_statistics(programming_languages):
 
     for language in programming_languages:
 
-        salaries = []
-
-        for vacancies_found, vacancies in get_hhru_vacancies(language):
-            for vacancy in vacancies:
-                salary = predict_rub_salary_hh(vacancy)
-                if salary:
-                    salaries.append(salary)
+        salaries, vacancies_found = process_vacancies(language)
 
         statistics[language] = {
             "vacancies_found": vacancies_found,
@@ -98,6 +92,17 @@ def get_hhru_vacancy_statistics(programming_languages):
         }
 
     return statistics
+
+
+def process_vacancies(language):
+    salaries = []
+
+    for vacancies_found, vacancies in get_hhru_vacancies(language):
+        for vacancy in vacancies:
+            salary = predict_rub_salary_hh(vacancy)
+            if salary:
+                salaries.append(salary)
+    return salaries, vacancies_found
 
 
 def get_sj_vacancies(client_secret, keyword):
