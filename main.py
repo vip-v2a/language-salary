@@ -6,15 +6,19 @@ from dotenv import load_dotenv
 from terminaltables import AsciiTable
 
 
-def get_hhru_vacancies(text, area_id="1", period=30,
-                       professional_role_id="96"):
+def get_hhru_vacancies(text):
 
     url = "https://api.hh.ru/vacancies"
+    Moscow_id = "1"
+    past_days_period = 30
+    programming_id = "96"
+    search_field = "name"
+
     params = {
-        "professional_role": professional_role_id,
-        "area": area_id,
-        "period": period,
-        "search_field": "name",
+        "professional_role": programming_id,
+        "area": Moscow_id,
+        "period": past_days_period,
+        "search_field": search_field,
         "text": text
     }
 
