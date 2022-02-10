@@ -162,12 +162,12 @@ def process_sj_vacancies(client_secret, language):
     salaries = []
 
     for vacancies_found, vacancies in get_sj_vacancies(client_secret,
-                                                           language):
+                                                       language):
         for vacancy in vacancies:
             salary = predict_rub_salary_sj(vacancy)
             if salary:
                 salaries.append(salary)
-    return salaries,vacancies_found
+    return salaries, vacancies_found
 
 
 def get_average_salary(salaries):
