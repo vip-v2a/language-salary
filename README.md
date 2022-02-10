@@ -5,7 +5,7 @@ This script calculate the average salary for most popular programming language i
 
 ### Project Goals
 
-The code is written for educational purposes on online-course for web-developers [dvmn.org](https://dvmn.org/).
+The code is written for educational purposes on online-course for web-developers, [dvmn.org](https://dvmn.org/).
 
 
 ## Usage
@@ -24,7 +24,7 @@ You need create environment variable:
 - `SUPERJOB_API_KEY` your app Secret key. You'll get it after registration. It is your access parameters.
 
 
-If you need [create of virtual environment](https://vc.ru/dev/240211-nastroyka-rabochego-okruzheniya-na-windows-dlya-raboty-s-python).
+If you need [create virtual environment](https://vc.ru/dev/240211-nastroyka-rabochego-okruzheniya-na-windows-dlya-raboty-s-python).
 
 You need install `requirements.txt`:
 ```    
@@ -35,7 +35,9 @@ pip install -r requirements.txt
 ## HeadHunter API
 
 [Developers page](https://dev.hh.ru/).
+
 [API general information](https://github.com/hhru/api/blob/master/docs/general.md).
+
 [How to get vacancies information](https://github.com/hhru/api/blob/master/docs/vacancies.md).
 
 ### Vacancy parameters
