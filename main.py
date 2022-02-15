@@ -9,14 +9,14 @@ from terminaltables import AsciiTable
 def get_hhru_vacancies(text):
 
     url = "https://api.hh.ru/vacancies"
-    Moscow_id = "1"
+    moscow_id = "1"
     past_days_period = 30
     programming_id = "96"
     search_field = "name"
 
     params = {
         "professional_role": programming_id,
-        "area": Moscow_id,
+        "area": moscow_id,
         "period": past_days_period,
         "search_field": search_field,
         "text": text
@@ -108,7 +108,7 @@ def process_hhru_vacancies(language):
 def get_sj_vacancies(client_secret, keyword):
 
     url = "https://api.superjob.ru/2.0/vacancies/"
-    Moscow_id = 4
+    moscow_id = 4
     programming_id = 48
     results_per_page = 100
 
@@ -117,7 +117,7 @@ def get_sj_vacancies(client_secret, keyword):
     }
 
     params = {
-        "town": Moscow_id,
+        "town": moscow_id,
         "catalogues": programming_id,
         "keyword": keyword,
         "count": results_per_page
