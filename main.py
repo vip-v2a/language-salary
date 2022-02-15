@@ -49,15 +49,13 @@ def predict_rub_salary_hh(vacancy):
 
 def predict_salary(salary_from, salary_to):
 
-    if not(salary_from or salary_to):
-        return
+    if salary_from or salary_to:
+        if not salary_from:
+            return salary_to * 0.8
+        if not salary_to:
+            return salary_from * 1.2
 
-    if not salary_from:
-        return salary_to * 0.8
-    if not salary_to:
-        return salary_from * 1.2
-
-    return 0.5 * (salary_from + salary_to)
+        return 0.5 * (salary_from + salary_to)
 
 
 def get_statistics_table(statistics, title):
